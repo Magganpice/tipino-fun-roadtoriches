@@ -356,7 +356,7 @@ function buildShareText(r) {
   const release = s.release || 'release';
   const cost    = r.total > 0 ? `$${r.total.toLocaleString()}` : '$0';
   const streams = r.total > 0 ? `${fmtBig(r.streams)} streams` : 'zero streams (free release!)';
-  return `🎵 ${name}'s ${release} costs ${cost} to release.\nThat's ${streams} just to break even on streaming.\n(5,000 streams to afford a $15 meal.)\n\nMusic streaming pays artists almost nothing.\nPlay the game: fun.tipino.app/roadtoriches/\n\n#RoadToRiches #IndieArtist`;
+  return `🎵 ${name}'s ${release} costs ${cost} to release.\nThat's ${streams} just to break even on streaming.\n(5,000 streams to afford a $15 meal.)\n\nMusic streaming pays artists almost nothing.\n\n#RoadToRiches #IndieArtist\n\n🎵 Play the game: fun.tipino.app/roadtoriches/`;
 }
 
 async function doShare() {
