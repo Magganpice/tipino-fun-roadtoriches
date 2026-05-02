@@ -4,92 +4,116 @@ import './style.css';
 const PAYOUT = 0.003; // $ per stream (Spotify avg.)
 const MEAL   = 15;    // USD
 
-// ── Choice data ──────────────────────────────────────────────────
+// ── Artist name suggestions ───────────────────────────────────────
+const ARTIST_NAMES = [
+  'Neon Sadness', 'Velvet Glitch', 'Static Bloom', 'Hollow Frequency',
+  'Rust & Lace', 'Midnight Codec', 'Fern Signal', 'Glass Trauma',
+  'Paper Moon Theory', 'Soft Collapse', 'Echo Bruise', 'Silver Dropout',
+  'Tender Noise', 'The Pale Circuit', 'Dusk Protocol', 'Coral Static',
+  'Low Signal', 'Cassette Wound', 'Phantom Gradient', 'Moth Frequency',
+  'Willow Glitch', 'Buried Hum', 'Numb Pixel', 'Lemon Void',
+  'Tide Protocol', 'Drift & Static', 'Grey Bloom', 'Salt Circuit',
+  'Velvet Error', 'Brine & Thread',
+];
+
+const randomName = () => ARTIST_NAMES[Math.floor(Math.random() * ARTIST_NAMES.length)];
+
+// ── Choice data ───────────────────────────────────────────────────
+// All cost/hype values have { single, album } variants.
+// maxHype is per-category (shared across choices in that category).
+
 const RECORDING = [
-  {
-    id: 'ai', emoji: '🤖', label: 'AI Tools',
-    desc: 'Suno, Udio & co.',
-    costSingle: 50, costAlbum: 80, hype: 1, maxHype: 5,
-  },
-  {
-    id: 'self', emoji: '🎙️', label: 'Home Studio',
-    desc: 'Self-recorded, self-mixed',
-    costSingle: 400, costAlbum: 800, hype: 3, maxHype: 5,
-  },
-  {
-    id: 'studio', emoji: '🎛️', label: 'Studio + Producer',
-    desc: 'Pro studio, mixing & mastering',
-    costSingle: 3000, costAlbum: 8000, hype: 5, maxHype: 5,
-  },
+  { id: 'ai',     emoji: '🤖', label: 'AI Tools',          desc: 'Suno, Udio & co.',              cost: { single: 50,   album: 80   }, hype: { single: 1, album: 1 }, maxHype: 5 },
+  { id: 'self',   emoji: '🎙️', label: 'Home Studio',        desc: 'Self-recorded, self-mixed',      cost: { single: 400,  album: 800  }, hype: { single: 3, album: 3 }, maxHype: 5 },
+  { id: 'studio', emoji: '🎛️', label: 'Studio + Producer',  desc: 'Pro studio, mixing & mastering', cost: { single: 3000, album: 8000 }, hype: { single: 5, album: 5 }, maxHype: 5 },
 ];
 
+// Album artwork needs more assets (booklet, variants) → higher cost & hype ceiling
 const ARTWORK = [
-  { id: 'ai',  emoji: '🤖', label: 'AI-Generated', desc: 'Midjourney, DALL·E',       cost: 0,   hype: 1, maxHype: 3 },
-  { id: 'diy', emoji: '🖌️', label: 'DIY',          desc: 'Canva, Figma, Photoshop', cost: 50,  hype: 2, maxHype: 3 },
-  { id: 'pro', emoji: '🎨', label: 'Pro Designer',  desc: 'Freelance graphic artist', cost: 500, hype: 3, maxHype: 3 },
+  { id: 'ai',  emoji: '🤖', label: 'AI-Generated',  desc: 'Midjourney, DALL·E',       cost: { single: 0,   album: 0   }, hype: { single: 1, album: 1 }, maxHype: { single: 3, album: 4 } },
+  { id: 'diy', emoji: '🖌️', label: 'DIY',           desc: 'Canva, Figma, Photoshop',  cost: { single: 50,  album: 100 }, hype: { single: 2, album: 2 }, maxHype: { single: 3, album: 4 } },
+  { id: 'pro', emoji: '🎨', label: 'Pro Designer',   desc: 'Freelance graphic artist', cost: { single: 500, album: 800 }, hype: { single: 3, album: 4 }, maxHype: { single: 3, album: 4 } },
 ];
 
+// Albums = multiple singles drop as videos before release → much higher cost & hype ceiling
 const VIDEO = [
-  { id: 'none', emoji: '📻', label: 'Audio Only',       desc: 'No video content',              cost: 0,    hype: 0, maxHype: 3 },
-  { id: 'self', emoji: '📱', label: 'Self-Shot',         desc: 'iPhone clips + social reels',   cost: 200,  hype: 2, maxHype: 3 },
-  { id: 'pro',  emoji: '🎬', label: 'Pro Music Video',   desc: 'Videographer + social cuts',    cost: 2500, hype: 3, maxHype: 3 },
+  { id: 'none', emoji: '📻', label: 'Audio Only',      desc: 'No video content',            cost: { single: 0,    album: 0    }, hype: { single: 0, album: 0 }, maxHype: { single: 3, album: 5 } },
+  { id: 'self', emoji: '📱', label: 'Self-Shot',        desc: 'iPhone clips + social reels', cost: { single: 200,  album: 600  }, hype: { single: 2, album: 3 }, maxHype: { single: 3, album: 5 } },
+  { id: 'pro',  emoji: '🎬', label: 'Pro Music Video',  desc: 'Videographer + social cuts',  cost: { single: 2500, album: 6000 }, hype: { single: 3, album: 5 }, maxHype: { single: 3, album: 5 } },
 ];
 
+// Albums need a longer campaign with multiple single-release moments → higher cost & hype ceiling
 const PROMO = [
-  { id: 'none', emoji: '🙏', label: 'Just Hope',     desc: 'Word of mouth only',            cost: 0,    hype: 0, maxHupe: 3 },
-  { id: 'ads',  emoji: '📣', label: 'Social Ads',     desc: 'Paid ads, ~1 month budget',     cost: 400,  hype: 2, maxHype: 3 },
-  { id: 'full', emoji: '🚀', label: 'Full Campaign',  desc: 'PR + playlist pitching + ads',  cost: 2000, hype: 3, maxHype: 3 },
+  { id: 'none', emoji: '🙏', label: 'Just Hope',     desc: 'Word of mouth only',           cost: { single: 0,    album: 0    }, hype: { single: 0, album: 0 }, maxHype: { single: 3, album: 5 } },
+  { id: 'ads',  emoji: '📣', label: 'Social Ads',    desc: 'Paid ads, ~1 month budget',    cost: { single: 400,  album: 1000 }, hype: { single: 2, album: 3 }, maxHype: { single: 3, album: 5 } },
+  { id: 'full', emoji: '🚀', label: 'Full Campaign',  desc: 'PR + playlist pitching + ads', cost: { single: 2000, album: 5000 }, hype: { single: 3, album: 5 }, maxHype: { single: 3, album: 5 } },
 ];
 
-const MAX_HYPE = 14; // 5+3+3+3
+// ── Helpers ───────────────────────────────────────────────────────
+const rel       = () => s.release || 'single';
+const getCost   = c  => (typeof c.cost    === 'object' ? c.cost[rel()]    : (c.cost    ?? 0));
+const getHype   = c  => (typeof c.hype    === 'object' ? c.hype[rel()]    : (c.hype    ?? 0));
+const getMaxH   = c  => (typeof c.maxHype === 'object' ? c.maxHype[rel()] : (c.maxHype ?? 0));
+
+function maxHypeTotal() {
+  // Recording maxHype is a plain number (same for both release types)
+  return RECORDING[0].maxHype + getMaxH(ARTWORK[0]) + getMaxH(VIDEO[0]) + getMaxH(PROMO[0]);
+}
 
 // ── State ────────────────────────────────────────────────────────
 let s = {
-  screen:    0,
-  name:      '',
-  release:   null, // 'single' | 'album'
-  recording: null,
-  artwork:   null,
-  video:     null,
-  promo:     null,
+  screen:      0,
+  name:        '',
+  placeholder: randomName(),
+  release:     null,
+  recording:   null,
+  artwork:     null,
+  video:       null,
+  promo:       null,
 };
 
 let transitioning = false;
 let clickHandler  = null;
 
 // ── Utilities ────────────────────────────────────────────────────
-const $       = id => document.getElementById(id);
-const fmt$    = n  => n === 0 ? 'FREE' : '$' + n.toLocaleString();
-const fmtBig  = n  => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(0) + 'K' : n.toString();
+const $      = id => document.getElementById(id);
+const fmt$   = n  => n === 0 ? 'FREE' : '$' + n.toLocaleString();
+const fmtBig = n  => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(0) + 'K' : n.toString();
 
 function calcResults() {
-  const isAlbum = s.release === 'album';
   const rec = RECORDING.find(c => c.id === s.recording);
   const art = ARTWORK.find(c => c.id === s.artwork);
   const vid = VIDEO.find(c => c.id === s.video);
   const pro = PROMO.find(c => c.id === s.promo);
-  const recCost = rec ? (isAlbum ? rec.costAlbum : rec.costSingle) : 0;
-  const total   = recCost + (art?.cost || 0) + (vid?.cost || 0) + (pro?.cost || 0);
-  const hype    = (rec?.hype || 0) + (art?.hype || 0) + (vid?.hype || 0) + (pro?.hype || 0);
+  const costs = {
+    recording: rec ? getCost(rec) : 0,
+    artwork:   art ? getCost(art) : 0,
+    video:     vid ? getCost(vid) : 0,
+    promo:     pro ? getCost(pro) : 0,
+  };
+  const total = Object.values(costs).reduce((a, b) => a + b, 0);
+  const hype  = [rec, art, vid, pro].reduce((sum, c) => sum + (c ? getHype(c) : 0), 0);
   return {
     breakdown: [
-      { label: 'Recording',  cost: recCost },
-      { label: 'Artwork',    cost: art?.cost || 0 },
-      { label: 'Video',      cost: vid?.cost || 0 },
-      { label: 'Promotion',  cost: pro?.cost || 0 },
+      { label: 'Recording',  cost: costs.recording },
+      { label: 'Artwork',    cost: costs.artwork },
+      { label: 'Video',      cost: costs.video },
+      { label: 'Promotion',  cost: costs.promo },
     ],
     total,
     hype,
+    maxHype: maxHypeTotal(),
     streams: total === 0 ? 0 : Math.ceil(total / PAYOUT),
     streamsForMeal: Math.ceil(MEAL / PAYOUT),
   };
 }
 
-function hypeLabel(score) {
-  if (score <= 2)  return ['👻', 'GHOST RELEASE'];
-  if (score <= 5)  return ['🌑', 'UNDERGROUND'];
-  if (score <= 8)  return ['📈', 'GAINING TRACTION'];
-  if (score <= 11) return ['🔥', 'VIRAL POTENTIAL'];
+function hypeLabel(score, max) {
+  const pct = score / max;
+  if (pct <= 0.15) return ['👻', 'GHOST RELEASE'];
+  if (pct <= 0.40) return ['🌑', 'UNDERGROUND'];
+  if (pct <= 0.65) return ['📈', 'GAINING TRACTION'];
+  if (pct <= 0.85) return ['🔥', 'VIRAL POTENTIAL'];
   return ['⭐', 'CHART INCOMING'];
 }
 
@@ -108,12 +132,15 @@ function hypeDots(filled, max) {
   ).join('');
 }
 
-function optCard(choice, selected, cost, hypeScore, maxHype) {
-  const sel = selected === choice.id ? 'selected' : '';
+function optCard(choice, selected) {
+  const cost    = getCost(choice);
+  const hype    = getHype(choice);
+  const maxHype = getMaxH(choice);
+  const sel     = selected === choice.id ? 'selected' : '';
   const hypeRow = maxHype > 0 ? `
     <div class="opt-hype">
       <span class="hype-label">HYPE</span>
-      <div class="hype-mini">${hypeDots(hypeScore, maxHype)}</div>
+      <div class="hype-mini">${hypeDots(hype, maxHype)}</div>
     </div>` : '';
   return `
     <div class="opt-card ${sel}" data-id="${choice.id}">
@@ -156,7 +183,7 @@ function renderName() {
         id="nameInput"
         class="pixel-input mt-16"
         type="text"
-        placeholder="e.g. Neon Sadness"
+        placeholder="e.g. ${escHtml(s.placeholder)}"
         maxlength="28"
         autocomplete="off"
         value="${escHtml(s.name)}"
@@ -190,7 +217,6 @@ function renderRelease() {
 }
 
 function renderRecording() {
-  const isAlbum = s.release === 'album';
   return `
     <div class="screen screen-step">
       ${progressBar(3)}
@@ -198,7 +224,7 @@ function renderRecording() {
       <div class="step-label">LEVEL 3</div>
       <h2>HOW DID YOU<br>RECORD IT?</h2>
       <div class="opts-list mt-16" data-field="recording">
-        ${RECORDING.map(c => optCard(c, s.recording, isAlbum ? c.costAlbum : c.costSingle, c.hype, c.maxHype)).join('')}
+        ${RECORDING.map(c => optCard(c, s.recording)).join('')}
       </div>
     </div>`;
 }
@@ -211,7 +237,7 @@ function renderArtwork() {
       <div class="step-label">LEVEL 4</div>
       <h2>WHAT ABOUT<br>THE COVER?</h2>
       <div class="opts-list mt-16" data-field="artwork">
-        ${ARTWORK.map(c => optCard(c, s.artwork, c.cost, c.hype, c.maxHype)).join('')}
+        ${ARTWORK.map(c => optCard(c, s.artwork)).join('')}
       </div>
     </div>`;
 }
@@ -225,7 +251,7 @@ function renderVideo() {
       <h2>ANY VIDEO<br>CONTENT?</h2>
       <p class="step-hint">Includes social reels &amp; vertical cuts.</p>
       <div class="opts-list" data-field="video">
-        ${VIDEO.map(c => optCard(c, s.video, c.cost, c.hype, c.maxHype)).join('')}
+        ${VIDEO.map(c => optCard(c, s.video)).join('')}
       </div>
     </div>`;
 }
@@ -238,15 +264,15 @@ function renderPromo() {
       <div class="step-label">LEVEL 6</div>
       <h2>HOW WILL YOU<br>GET HEARD?</h2>
       <div class="opts-list mt-16" data-field="promo">
-        ${PROMO.map(c => optCard(c, s.promo, c.cost, c.hype, 3)).join('')}
+        ${PROMO.map(c => optCard(c, s.promo)).join('')}
       </div>
     </div>`;
 }
 
 function renderResults() {
   const r   = calcResults();
-  const pct = Math.round((r.hype / MAX_HYPE) * 100);
-  const [hEmoji, hLabel] = hypeLabel(r.hype);
+  const pct = Math.round((r.hype / r.maxHype) * 100);
+  const [hEmoji, hLabel] = hypeLabel(r.hype, r.maxHype);
   const shareText = buildShareText(r);
 
   return `
@@ -275,7 +301,7 @@ function renderResults() {
         <div class="hype-bar-wrap">
           <div class="hype-bar-fill" style="--pct: ${pct}%"></div>
         </div>
-        <div class="hype-status">${hEmoji} ${hLabel} &nbsp;(${r.hype}/${MAX_HYPE})</div>
+        <div class="hype-status">${hEmoji} ${hLabel} &nbsp;(${r.hype}/${r.maxHype})</div>
       </div>
 
       <div class="res-card res-card-highlight">
@@ -330,7 +356,6 @@ function buildShareText(r) {
   const release = s.release || 'release';
   const cost    = r.total > 0 ? `$${r.total.toLocaleString()}` : '$0';
   const streams = r.total > 0 ? `${fmtBig(r.streams)} streams` : 'zero streams (free release!)';
-
   return `🎵 ${name}'s ${release} costs ${cost} to release.\nThat's ${streams} just to break even on Spotify.\n(5,000 streams to afford a $15 meal.)\n\nMusic streaming pays artists almost nothing.\n→ tipino.app\n\n#RoadToRiches #IndieArtist`;
 }
 
@@ -338,21 +363,14 @@ async function doShare() {
   const r    = calcResults();
   const text = buildShareText(r);
   const btn  = $('shareBtn');
-
   if (navigator.share) {
-    try {
-      await navigator.share({ title: 'Road to Riches', text, url: 'https://tipino.app/' });
-    } catch { /* user cancelled */ }
+    try { await navigator.share({ title: 'Road to Riches', text, url: 'https://tipino.app/' }); }
+    catch { /* user cancelled */ }
     return;
   }
-
-  // Fallback: copy to clipboard
   try {
     await navigator.clipboard.writeText(text + '\nhttps://tipino.app/');
-    if (btn) {
-      btn.textContent = '✓ COPIED!';
-      setTimeout(() => { btn.textContent = '⤴ SHARE RESULT'; }, 2200);
-    }
+    if (btn) { btn.textContent = '✓ COPIED!'; setTimeout(() => { btn.textContent = '⤴ SHARE RESULT'; }, 2200); }
   } catch {
     if (btn) btn.textContent = 'COPY FAILED :(';
   }
@@ -361,21 +379,12 @@ async function doShare() {
 // ── Event handling ────────────────────────────────────────────────
 function handleClick(e) {
   if (transitioning) return;
-
   const btn     = e.target.closest('[data-action]');
   const optCard = e.target.closest('.opt-card');
   const relCard = e.target.closest('.rel-card[data-action]');
 
-  if (relCard) {
-    action(relCard.dataset.action, relCard.dataset);
-    return;
-  }
-
-  if (btn) {
-    action(btn.dataset.action, btn.dataset);
-    return;
-  }
-
+  if (relCard) { action(relCard.dataset.action, relCard.dataset); return; }
+  if (btn)     { action(btn.dataset.action, btn.dataset); return; }
   if (optCard) {
     const field = optCard.closest('[data-field]')?.dataset.field;
     if (field) selectOpt(field, optCard.dataset.id);
@@ -385,49 +394,36 @@ function handleClick(e) {
 function action(name, data = {}) {
   switch (name) {
     case 'to-1': go(1); break;
-
     case 'to-2':
       if (!s.name.trim()) return shake('nameInput');
       go(2);
       break;
-
     case 'select-release':
       s.release = data.val;
       advance(3);
       break;
-
     case 'restart':
-      s = { screen: 0, name: '', release: null, recording: null, artwork: null, video: null, promo: null };
+      s = { screen: 0, name: '', placeholder: randomName(), release: null, recording: null, artwork: null, video: null, promo: null };
       render();
       break;
-
-    case 'share':
-      doShare();
-      break;
+    case 'share': doShare(); break;
   }
 }
 
 function selectOpt(field, id) {
   s[field] = id;
-  // Show selected state briefly, then advance
   const nextMap = { recording: 4, artwork: 5, video: 6, promo: 7 };
   const next = nextMap[field];
   if (!next) return;
-
-  // Highlight card immediately
-  document.querySelectorAll(`.opt-card`).forEach(c => {
+  document.querySelectorAll('.opt-card').forEach(c => {
     c.classList.toggle('selected', c.dataset.id === id);
   });
-
   advance(next);
 }
 
 function advance(nextScreen) {
   transitioning = true;
-  setTimeout(() => {
-    transitioning = false;
-    go(nextScreen);
-  }, 320);
+  setTimeout(() => { transitioning = false; go(nextScreen); }, 320);
 }
 
 function go(screen) {
@@ -448,17 +444,14 @@ function shake(inputId) {
 function animateCounter(target) {
   const el = $('streamCounter');
   if (!el || target === 0) { if (el) el.textContent = '0'; return; }
-
   const duration = 1400;
   const start    = Date.now();
-
   function tick() {
     const t = Math.min((Date.now() - start) / duration, 1);
     const eased = 1 - Math.pow(1 - t, 3);
     el.textContent = fmtBig(Math.round(eased * target));
     if (t < 1) requestAnimationFrame(tick);
   }
-
   requestAnimationFrame(tick);
 }
 
@@ -470,25 +463,19 @@ function render() {
     renderRecording, renderArtwork, renderVideo, renderPromo,
     renderResults,
   ];
-
   app.innerHTML = screens[s.screen]?.() ?? '';
 
-  // Re-attach delegated handler
   if (clickHandler) app.removeEventListener('click', clickHandler);
   clickHandler = e => handleClick(e);
   app.addEventListener('click', clickHandler);
 
-  // Name input special handling
   const nameInput = $('nameInput');
   if (nameInput) {
     nameInput.focus();
     nameInput.addEventListener('input', e => { s.name = e.target.value; });
-    nameInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') action('to-2');
-    });
+    nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') action('to-2'); });
   }
 
-  // Results: start counter animation
   if (s.screen === 7) {
     const r = calcResults();
     requestAnimationFrame(() => animateCounter(r.streams));
@@ -498,10 +485,8 @@ function render() {
 // ── Sanitize ──────────────────────────────────────────────────────
 function escHtml(str) {
   return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ── Boot ──────────────────────────────────────────────────────────
