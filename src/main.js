@@ -359,20 +359,21 @@ function buildTwitterText(r) {
 }
 
 async function doShare() {
-  const r    = calcResults();
-  const text = buildShareText(r);
-  const btn  = $('shareBtn');
+  const r        = calcResults();
+  const fullText = buildShareText(r) + `\n\nPlay the game: ${GAME_URL}`;
+  const btn      = $('shareBtn');
+
+  // Silently copy to clipboard so text is ready to paste (e.g. on Facebook)
+  navigator.clipboard.writeText(fullText).catch(() => {});
+
   if (navigator.share) {
-    try { await navigator.share({ title: 'Road to Riches', text, url: GAME_URL }); }
+    try { await navigator.share({ title: 'Road to Riches', text: buildShareText(r), url: GAME_URL }); }
     catch { /* user cancelled */ }
     return;
   }
-  try {
-    await navigator.clipboard.writeText(text + `\n\n🎵 Play the game: ${GAME_URL}`);
-    if (btn) { btn.textContent = '✓ COPIED!'; setTimeout(() => { btn.textContent = '⤴ SHARE RESULT'; }, 2200); }
-  } catch {
-    if (btn) btn.textContent = 'COPY FAILED :(';
-  }
+
+  // Fallback: show copied feedback
+  if (btn) { btn.textContent = '✓ COPIED!'; setTimeout(() => { btn.textContent = '⤴ SHARE RESULT'; }, 2200); }
 }
 
 // ── Event handling ────────────────────────────────────────────────
