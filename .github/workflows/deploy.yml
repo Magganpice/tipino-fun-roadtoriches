@@ -3,6 +3,7 @@ name: Build & Deploy to cyon.ch
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
