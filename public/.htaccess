@@ -3,6 +3,11 @@
   Require all granted
 </IfModule>
 
+<IfModule mod_security.c>
+  SecRuleEngine Off
+  SecRequestBodyAccess Off
+</IfModule>
+
 # Fallback to index.html for SPA routing
 <IfModule mod_rewrite.c>
   RewriteEngine On
