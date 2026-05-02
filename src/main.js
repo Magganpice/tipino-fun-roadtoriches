@@ -32,7 +32,7 @@ const RECORDING = [
 const ARTWORK = [
   { id: 'ai',  emoji: '🤖', label: 'AI-Generated',  desc: 'Midjourney, DALL·E',       cost: { single: 0,   album: 0   }, hype: { single: 1, album: 1 }, maxHype: { single: 3, album: 4 } },
   { id: 'diy', emoji: '🖌️', label: 'DIY',           desc: 'Canva, Figma, Photoshop',  cost: { single: 50,  album: 100 }, hype: { single: 2, album: 2 }, maxHype: { single: 3, album: 4 } },
-  { id: 'pro', emoji: '🎨', label: 'Pro Designer',   desc: 'Freelance graphic artist', cost: { single: 500, album: 800 }, hype: { single: 3, album: 4 }, maxHype: { single: 3, album: 4 } },
+  { id: 'pro', emoji: '🎨', label: 'Pro Designer',   desc: 'Freelance graphic artist', cost: { single: 500, album: 1500 }, hype: { single: 3, album: 4 }, maxHype: { single: 3, album: 4 } },
 ];
 
 // Albums = multiple singles drop as videos before release → much higher cost & hype ceiling
@@ -45,7 +45,7 @@ const VIDEO = [
 // Albums need a longer campaign with multiple single-release moments → higher cost & hype ceiling
 const PROMO = [
   { id: 'none', emoji: '🙏', label: 'Just Hope',     desc: 'Word of mouth only',           cost: { single: 0,    album: 0    }, hype: { single: 0, album: 0 }, maxHype: { single: 3, album: 5 } },
-  { id: 'ads',  emoji: '📣', label: 'Social Ads',    desc: 'Paid ads, ~1 month budget',    cost: { single: 400,  album: 1000 }, hype: { single: 2, album: 3 }, maxHype: { single: 3, album: 5 } },
+  { id: 'ads',  emoji: '📣', label: 'Social Ads',    desc: 'Paid ads, ~1 month budget',    cost: { single: 400,  album: 1500 }, hype: { single: 2, album: 3 }, maxHype: { single: 3, album: 5 } },
   { id: 'full', emoji: '🚀', label: 'Full Campaign',  desc: 'PR + playlist pitching + ads', cost: { single: 2000, album: 5000 }, hype: { single: 3, album: 5 }, maxHype: { single: 3, album: 5 } },
 ];
 
