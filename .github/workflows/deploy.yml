@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy via FTP
+      - name: Deploy game via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server:     ${{ secrets.FTP_HOST }}
@@ -33,4 +33,14 @@ jobs:
           password:   ${{ secrets.FTP_PASSWORD }}
           local-dir:  ./dist/
           server-dir: /roadtoriches/
+          dangerous-clean-slate: false
+
+      - name: Deploy domain root files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:     ${{ secrets.FTP_HOST }}
+          username:   ${{ secrets.FTP_USERNAME }}
+          password:   ${{ secrets.FTP_PASSWORD }}
+          local-dir:  ./root-public/
+          server-dir: /
           dangerous-clean-slate: false
