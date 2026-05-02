@@ -307,7 +307,7 @@ function renderResults() {
       <div class="res-card res-card-highlight">
         <div class="res-card-title">🎧 STREAMS TO BREAK EVEN</div>
         <div class="big-number" id="streamCounter">${r.total === 0 ? '0' : '...'}</div>
-        <div class="big-sub">streams &nbsp;·&nbsp; $0.003 each (Spotify avg.)</div>
+        <div class="big-sub">streams &nbsp;·&nbsp; $0.003 each (Streaming avg.)</div>
         ${r.total > 0 ? `
         <div class="meal-compare">
           To earn $15 for one meal: <strong>${r.streamsForMeal.toLocaleString()} streams</strong>
