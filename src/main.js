@@ -317,15 +317,8 @@ function renderResults() {
         </div>`}
       </div>
 
-      <div class="share-row mt-20">
+      <div class="mt-20">
         <button class="btn btn-share" id="shareBtn" data-action="share">⤴ SHARE RESULT</button>
-        <a
-          class="btn-x"
-          href="https://x.com/intent/tweet?text=${encodeURIComponent(buildTwitterText(r))}"
-          target="_blank"
-          rel="noopener"
-          title="Share on X"
-        >𝕏</a>
       </div>
 
       <button class="btn btn-ghost" data-action="restart">↺ TRY AGAIN</button>
