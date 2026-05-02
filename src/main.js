@@ -356,7 +356,7 @@ function buildShareText(r) {
   const release = s.release || 'release';
   const cost    = r.total > 0 ? `$${r.total.toLocaleString()}` : '$0';
   const streams = r.total > 0 ? `${fmtBig(r.streams)} streams` : 'zero streams (free release!)';
-  return `🎵 ${name}'s ${release} costs ${cost} to release.\nThat's ${streams} just to break even on Spotify.\n(5,000 streams to afford a $15 meal.)\n\nMusic streaming pays artists almost nothing.\n→ tipino.app\n\n#RoadToRiches #IndieArtist`;
+  return `🎵 ${name}'s ${release} costs ${cost} to release.\nThat's ${streams} just to break even on streaming.\n(5,000 streams to afford a $15 meal.)\n\nMusic streaming pays artists almost nothing.\nPlay the game: fun.tipino.app/roadtoriches/\n\n#RoadToRiches #IndieArtist`;
 }
 
 async function doShare() {
@@ -364,12 +364,12 @@ async function doShare() {
   const text = buildShareText(r);
   const btn  = $('shareBtn');
   if (navigator.share) {
-    try { await navigator.share({ title: 'Road to Riches', text, url: 'https://tipino.app/' }); }
+    try { await navigator.share({ title: 'Road to Riches', text, url: 'https://fun.tipino.app/roadtoriches/' }); }
     catch { /* user cancelled */ }
     return;
   }
   try {
-    await navigator.clipboard.writeText(text + '\nhttps://tipino.app/');
+    await navigator.clipboard.writeText(text + '\nhttps://fun.tipino.app/roadtoriches/');
     if (btn) { btn.textContent = '✓ COPIED!'; setTimeout(() => { btn.textContent = '⤴ SHARE RESULT'; }, 2200); }
   } catch {
     if (btn) btn.textContent = 'COPY FAILED :(';
