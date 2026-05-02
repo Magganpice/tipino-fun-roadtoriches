@@ -321,7 +321,7 @@ function renderResults() {
         <button class="btn btn-share" id="shareBtn" data-action="share">⤴ SHARE RESULT</button>
         <a
           class="btn-x"
-          href="https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}"
+          href="https://x.com/intent/tweet?text=${encodeURIComponent(buildTwitterText(r))}"
           target="_blank"
           rel="noopener"
           title="Share on X"
@@ -351,12 +351,18 @@ function renderResults() {
 }
 
 // ── Share ─────────────────────────────────────────────────────────
+const GAME_URL = 'https://fun.tipino.app/roadtoriches/';
+
 function buildShareText(r) {
   const name    = s.name || 'My release';
   const release = s.release || 'release';
   const cost    = r.total > 0 ? `$${r.total.toLocaleString()}` : '$0';
   const streams = r.total > 0 ? `${fmtBig(r.streams)} streams` : 'zero streams (free release!)';
-  return `🎵 ${name}'s ${release} costs ${cost} to release.\nThat's ${streams} just to break even on streaming.\n(5,000 streams to afford a $15 meal.)\n\nMusic streaming pays artists almost nothing.\n\n#RoadToRiches #IndieArtist\n\n🎵 Play the game: fun.tipino.app/roadtoriches/`;
+  return `🎵 ${name}'s ${release} costs ${cost} to release.\nThat's ${streams} just to break even on streaming.\n(5,000 streams to afford a $15 meal.)\n\nMusic streaming pays artists almost nothing.\n\n#RoadToRiches #IndieArtist`;
+}
+
+function buildTwitterText(r) {
+  return buildShareText(r) + `\n\n🎵 Play the game: ${GAME_URL}`;
 }
 
 async function doShare() {
@@ -364,12 +370,12 @@ async function doShare() {
   const text = buildShareText(r);
   const btn  = $('shareBtn');
   if (navigator.share) {
-    try { await navigator.share({ title: 'Road to Riches', text, url: 'https://fun.tipino.app/roadtoriches/' }); }
+    try { await navigator.share({ title: 'Road to Riches', text, url: GAME_URL }); }
     catch { /* user cancelled */ }
     return;
   }
   try {
-    await navigator.clipboard.writeText(text + '\nhttps://fun.tipino.app/roadtoriches/');
+    await navigator.clipboard.writeText(text + `\n\n🎵 Play the game: ${GAME_URL}`);
     if (btn) { btn.textContent = '✓ COPIED!'; setTimeout(() => { btn.textContent = '⤴ SHARE RESULT'; }, 2200); }
   } catch {
     if (btn) btn.textContent = 'COPY FAILED :(';
